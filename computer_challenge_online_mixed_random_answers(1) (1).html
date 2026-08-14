@@ -1,0 +1,61 @@
+<!doctype html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Computer Challenge Online</title>
+<style>
+*{box-sizing:border-box}body{font-family:Arial,Tahoma;background:linear-gradient(135deg,#0f172a,#1d4ed8);color:white;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:15px}.box{width:100%;max-width:700px;background:#ffffff18;padding:25px;border-radius:24px;box-shadow:0 20px 50px #0008}h1,h2{text-align:center}.sub{text-align:center;color:#cbd5e1;margin:10px 0 20px}.hide{display:none!important}button,input{width:100%;padding:14px;border:0;border-radius:12px;font-size:16px}input{margin:10px 0}button{cursor:pointer;color:white;margin-top:10px}.easy{background:#16a34a}.medium{background:#d97706}.hard{background:#dc2626}.mixed{background:#2563eb}.purple{background:#7c3aed}.gray{background:#64748b}.red{background:#dc2626}.top{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.info{background:#ffffff14;padding:10px;border-radius:10px}.progress{height:8px;background:#334155;border-radius:10px}.bar{height:100%;background:#60a5fa;width:0}.q{font-size:22px;line-height:1.5;margin:15px 0}.answers{display:grid;gap:10px}.answer{background:#26324f;text-align:left}.correct{background:#15803d!important}.wrong{background:#b91c1c!important}.rank{display:flex;gap:10px;align-items:center;background:#ffffff12;padding:13px;border-radius:12px;margin:8px 0}.rank b:first-child{font-size:22px}.name{flex:1}.score{font-weight:bold}.status{text-align:center;color:#cbd5e1;font-size:13px;margin-top:10px}
+</style></head><body><main class="box">
+<section id="register"><h1>💻 Computer Challenge</h1><p class="sub">เกมความรู้คอมพิวเตอร์ออนไลน์</p><h2>👤 ลงทะเบียน</h2><input id="name" maxlength="20" placeholder="กรอกชื่อผู้เล่น"><button class="mixed" onclick="register()">🎮 เริ่ม</button><p id="status" class="status">กำลังตรวจสอบระบบ...</p></section>
+<section id="menu" class="hide"><h1>💻 Computer Challenge</h1><p class="sub">ผู้เล่น: <b id="player"></b></p><button class="easy" onclick="start('easy')">🟢 ง่าย<small>10 คะแนน/ข้อ</small></button><button class="medium" onclick="start('medium')">🟡 ปานกลาง<small>15 คะแนน/ข้อ</small></button><button class="hard" onclick="start('hard')">🔴 ยาก<small>20 คะแนน/ข้อ</small></button><button class="mixed" onclick="start('mixed')">🔵 ผสม<small>สุ่มง่าย+ปานกลาง+ยาก</small></button><button class="purple" onclick="leaderboard()">🏆 ตารางคะแนนออนไลน์</button><button class="gray" onclick="changeName()">👤 เปลี่ยนชื่อ</button></section>
+<section id="game" class="hide"><p>👤 <b id="gplayer"></b></p><div class="top"><span class="info">🏆 <b id="score">0</b></span><span class="info">❤️ <b id="lives">3</b></span><span class="info">⏱️ <b id="time">20</b></span></div><div class="progress"><div id="bar" class="bar"></div></div><p id="num"></p><div id="question" class="q"></div><div id="answers" class="answers"></div><button id="next" class="mixed hide" onclick="next()">ข้อต่อไป ➜</button></section>
+<section id="result" class="hide"><h1 id="title">🎉</h1><p class="sub">คะแนนของคุณ</p><h1 id="final">0</h1><p id="msg" class="sub"></p><p id="save" class="status"></p><button class="mixed" onclick="start(level)">🔄 เล่นอีกครั้ง</button><button class="purple" onclick="leaderboard()">🏆 ดูอันดับออนไลน์</button><button class="gray" onclick="menu()">🏠 เมนู</button></section>
+<section id="board" class="hide"><h2>🌎 ตารางคะแนนออนไลน์ Top 10</h2><div id="list" style="margin:18px 0"></div><button class="mixed" onclick="leaderboard()">🔄 รีเฟรช</button><button class="gray" onclick="menu()">🏠 เมนู</button></section>
+</main>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import{getFirestore,collection,addDoc,query,orderBy,limit,getDocs,serverTimestamp}from"https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+/* ใส่ค่าจาก Firebase Console > Project settings > Your apps */
+const firebaseConfig={apiKey:"ใส่_API_KEY",authDomain:"ใส่_PROJECT_ID.firebaseapp.com",projectId:"ใส่_PROJECT_ID",storageBucket:"ใส่_PROJECT_ID.firebasestorage.app",messagingSenderId:"ใส่_MESSAGING_SENDER_ID",appId:"ใส่_APP_ID"};
+try{const app=initializeApp(firebaseConfig);window.db=getFirestore(app);window.F={collection,addDoc,query,orderBy,limit,getDocs,serverTimestamp};window.online=true;document.getElementById("status").textContent=firebaseConfig.projectId.includes("ใส่_")?"⚠️ ใส่ Firebase Config ก่อน":"🟢 ระบบออนไลน์พร้อมใช้งาน"}catch(e){window.online=false;document.getElementById("status").textContent="⚠️ ยังไม่ได้ตั้งค่า Firebase"}
+</script>
+<script>
+const Q={
+easy:[["อุปกรณ์ใดใช้พิมพ์ข้อความ?",["Mouse","Keyboard","Monitor","Speaker"],1],["CPU ทำหน้าที่อะไร?",["แสดงภาพ","ประมวลผลคำสั่ง","พิมพ์เอกสาร","เก็บไฟล์"],1],["อุปกรณ์ใดแสดงภาพ?",["Monitor","Keyboard","Mouse","Microphone"],0],["Mouse ใช้ทำอะไร?",["ควบคุมตัวชี้","ประมวลผล","เก็บข้อมูล","จ่ายไฟ"],0],["ข้อใดคือระบบปฏิบัติการ?",["Windows","Google","YouTube","Facebook"],0],["RAM คืออะไร?",["หน่วยความจำชั่วคราว","จอภาพ","แป้นพิมพ์","เครื่องพิมพ์"],0],["อุปกรณ์ใดใช้เก็บข้อมูล?",["SSD","Monitor","Mouse","Speaker"],0],["ข้อใดเป็นเว็บเบราว์เซอร์?",["Chrome","Windows","RAM","CPU"],0]],
+medium:[["RAM เก็บข้อมูลแบบใด?",["ถาวร","ชั่วคราว","ออนไลน์เท่านั้น","กราฟิกเท่านั้น"],1],["ข้อดีของ SSD คืออะไร?",["เร็วและไม่มีชิ้นส่วนเคลื่อนไหว","ใช้ไฟมากกว่า","ใหญ่กว่าเสมอ","ถูกกว่าเสมอ"],0],["GPU เหมาะกับงานใด?",["กราฟิก","พิมพ์เอกสาร","เพลงเท่านั้น","จ่ายไฟ"],0],["ซอฟต์แวร์คืออะไร?",["สิ่งจับต้องได้","ชุดคำสั่งหรือโปรแกรม","สายไฟ","ชิป"],1],["LAN คืออะไร?",["เครือข่ายในพื้นที่จำกัด","หน่วยความจำ","OS","แอนติไวรัส"],0],[".jpg มักเป็นไฟล์อะไร?",["รูปภาพ","เสียง","โปรแกรม","ฐานข้อมูล"],0],["ข้อใดเป็นซอฟต์แวร์?",["Keyboard","RAM","Microsoft Word","SSD"],2],["Firewall เกี่ยวกับอะไร?",["ความปลอดภัยเครือข่าย","ความสว่าง","พิมพ์","เสียง"],0],["หน่วยใดใหญ่กว่า?",["KB","MB","GB","Byte"],2],["OS มีหน้าที่อะไร?",["จัดการทรัพยากรคอมพิวเตอร์","เป็นจอ","เป็นเมาส์","เพิ่มเน็ตโดยตรง"],0]],
+hard:[["IP Address ทำหน้าที่อะไร?",["ระบุอุปกรณ์บนเครือข่าย","เพิ่ม RAM","ควบคุมจอ","บีบอัดรูป"],0],["DNS ทำหน้าที่อะไร?",["แปลงชื่อโดเมนเป็น IP","เพิ่มดิสก์","สร้างกราฟิก","ตรวจ RAM"],0],["HTTP ย่อมาจากอะไร?",["HyperText Transfer Protocol","High Transfer Text Program","Hyper Tool Transfer Process","Host Text Transfer Program"],0],["HTML ใช้ทำอะไร?",["โครงสร้างเว็บ","ฐานข้อมูล","เสียง","ระบบไฟ"],0],["SQL ใช้ทำอะไร?",["จัดการฐานข้อมูล","วาดภาพ","ตัดต่อ","ควบคุมเมาส์"],0],["ตัวแปรใช้ทำอะไร?",["เก็บค่าข้อมูล","เพิ่มไฟ","สร้างจอ","ต่อ Wi-Fi เท่านั้น"],0],["ข้อใดเป็น Malware?",["Virus","Keyboard","Monitor","SSD"],0],["HTTPS เพิ่มความปลอดภัยด้วยอะไร?",["การเข้ารหัส","เพิ่ม RAM","เพิ่มความละเอียด","เพิ่ม CPU"],0],["Relational Database จัดข้อมูลแบบใด?",["ตาราง","รูปภาพ","เสียง","วิดีโอ"],0],["Algorithm คืออะไร?",["ขั้นตอนแก้ปัญหา","อุปกรณ์","OS","สาย LAN"],0]]};
+let name="",level="",qs=[],i=0,score=0,lives=3,timer=20,clock=null,answered=false;
+const $=x=>document.getElementById(x), hide=()=>["register","menu","game","result","board"].forEach(x=>$(x).classList.add("hide"));
+function register(){name=$("name").value.trim();if(!name)return alert("กรุณากรอกชื่อ");localStorage.name=name;menu()}
+function changeName(){hide();$("register").classList.remove("hide");$("name").value=name}
+function menu(){clearInterval(clock);hide();$("menu").classList.remove("hide");$("player").textContent=name}
+function start(l){level=l;score=0;lives=3;i=0;let arr=[];if(l==="mixed"){["easy","medium","hard"].forEach(d=>Q[d].forEach(x=>arr.push({q:x[0],a:x[1],c:x[2],d})));shuffle(arr);qs=arr.slice(0,15)}else qs=Q[l].map(x=>({q:x[0],a:x[1],c:x[2],d:l})),shuffle(qs);$("gplayer").textContent=name;hide();$("game").classList.remove("hide");show()}
+function pts(q){return q.d==="easy"?10:q.d==="medium"?15:20}function lname(d){return d==="easy"?"ง่าย":d==="medium"?"ปานกลาง":d==="hard"?"ยาก":"ผสม"}
+function show(){
+clearInterval(clock);answered=false;let q=qs[i];
+$("num").textContent=`ข้อ ${i+1}/${qs.length} • ${lname(q.d)}`;
+$("question").textContent=q.q;$("answers").innerHTML="";
+let choices=q.a.map((text,index)=>({text,correct:index===q.c}));
+shuffle(choices);
+choices.forEach((choice,n)=>{
+ let b=document.createElement("button");b.className="answer";
+ b.textContent=`${String.fromCharCode(65+n)}. ${choice.text}`;
+ b.dataset.correct=choice.correct;b.onclick=()=>answer(choice.correct,b);
+ $("answers").appendChild(b);
+});
+$("next").classList.add("hide");$("bar").style.width=`${i/qs.length*100}%`;
+timer=q.d==="hard"?15:20;tick()
+}
+function tick(){$("time").textContent=timer;clock=setInterval(()=>{timer--;$("time").textContent=timer;if(timer<=5)$("time").style.color="#f87171";if(timer<=0){clearInterval(clock);answer(-1,null)}},1000)}
+function answer(isCorrect,b){
+if(answered)return;answered=true;clearInterval(clock);
+let q=qs[i],bs=document.querySelectorAll(".answer");bs.forEach(x=>x.disabled=true);
+if(isCorrect){b.classList.add("correct");score+=pts(q)}
+else{if(b)b.classList.add("wrong");bs.forEach(x=>{if(x.dataset.correct==="true")x.classList.add("correct")});lives--}
+$("score").textContent=score;$("lives").textContent=lives;
+if(lives<=0){setTimeout(()=>finish(false),500);return}
+$("next").classList.remove("hide");
+}
+function next(){i++;if(i>=qs.length)finish(true);else show()}
+async function finish(done){clearInterval(clock);hide();$("result").classList.remove("hide");$("final").textContent=score;if(!done){$("title").textContent="💥 Game Over";$("msg").textContent="หัวใจหมดแล้ว";$("save").textContent="คะแนนนี้ไม่ถูกส่งขึ้นอันดับ";return}let max=qs.reduce((s,q)=>s+pts(q),0),p=Math.round(score/max*100);$("title").textContent=p>=80?"🏆 ยอดเยี่ยม!":p>=60?"👍 ผ่าน!":"📚 สู้ต่อไป!";$("msg").textContent=`ทำได้ ${p}%`;await save()}
+async function save(){if(!window.online){$("save").textContent="⚠️ ต้องตั้งค่า Firebase ก่อน";return}try{await F.addDoc(F.collection(window.db,"scores"),{name,score,level,levelName:lname(level),createdAt:F.serverTimestamp()});$("save").textContent="✅ บันทึกอันดับออนไลน์แล้ว"}catch(e){console.error(e);$("save").textContent="❌ บันทึกไม่ได้ ตรวจสอบ Firebase Rules"}}
+async function leaderboard(){hide();$("board").classList.remove("hide");$("list").innerHTML="<p class='status'>กำลังโหลด...</p>";if(!window.online){$("list").innerHTML="<p class='status'>⚠️ ต้องตั้งค่า Firebase Config ก่อน</p>";return}try{let q=F.query(F.collection(window.db,"scores"),F.orderBy("score","desc"),F.limit(10)),s=await F.getDocs(q);$("list").innerHTML="";let n=0;s.forEach(d=>{let p=d.data(),r=document.createElement("div");r.className="rank";r.innerHTML=`<b>${n<3?["🥇","🥈","🥉"][n]:n+1}</b><span class="name">${esc(p.name)}<br><small>${esc(p.levelName||"")}</small></span><span class="score">${p.score} คะแนน</span>`;$("list").appendChild(r);n++});if(!n)$("list").innerHTML="<p class='status'>ยังไม่มีคะแนน</p>"}catch(e){console.error(e);$("list").innerHTML="<p class='status'>❌ โหลดอันดับไม่ได้ ตรวจสอบ Firebase Rules</p>"}}
+function shuffle(a){for(let n=a.length-1;n>0;n--){let j=Math.floor(Math.random()*(n+1));[a[n],a[j]]=[a[j],a[n]]}}function esc(t){let d=document.createElement("div");d.textContent=t;return d.innerHTML}
+name=localStorage.name||"";if(name){$("name").value=name;menu()}
+</script></body></html>
